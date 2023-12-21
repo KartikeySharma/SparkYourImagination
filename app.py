@@ -103,21 +103,28 @@ def getClosestBook():
     min_dist_book = book_details[book_details['distCol'] == book_details['distCol'].min()]
 
     if st.button("Get Books"):
-        if not min_dist_book.empty:
-            min_dist_book = min_dist_book.iloc[0]  # Select the first row from the filtered DataFrame
-            st.write(f"Book similar to {min_dist_book['title_A']}:")
+        books_with_images = min_dist_book  # Assuming min_dist_book is the DataFrame with book data
+        if not books_with_images.empty:
+            st.write(f"Books similar to {min_dist_book.iloc[0]['title_A']}:")
             st.write("")
             st.write("")
             
             # Display books' images with book names in a horizontal grid
-            image_html = get_image(min_dist_book['image_url_B'], 200)
-            if image_html:
-                st.markdown(f'<div style="display: flex; flex-direction: column; align-items: center; text-align: center;"> \
-                        <img src="data:image/jpeg;base64,{image_html}" style="width:200px; margin: 0 10px"> \
-                        <div style="font-size: 0.8em; word-wrap: break-word;">{min_dist_book["title_B"]}</div> \
-                        </div>', unsafe_allow_html=True)
+            image_width = 200  # Set the width of each image
+            images_html = ""
+            for index, row in books_with_images.iterrows():
+                image_html = get_image(row['image_url_B'], image_width)  # Assuming 'image_url_B' contains image URLs
+                if image_html:
+                    images_html += f'<div style="display: inline-block; text-align: center;">'
+                    images_html += f'<img src="data:image/jpeg;base64,{image_html}" style="width:{image_width}px; margin: 0 10px">'
+                    images_html += f'<div style="font-size: 0.8em; word-wrap: break-word; width: {image_width}px;">{row["title_B"]}</div>'
+                    images_html += f'</div>'
+            
+            # Display images in a horizontal grid
+            st.markdown(images_html, unsafe_allow_html=True)
         else:
             st.write(f"No books found for {selected_title}.")
+
 
 import streamlit as st
 
