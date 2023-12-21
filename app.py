@@ -119,8 +119,7 @@ def getClosestBook():
         else:
             st.write(f"No books found for {selected_title}.")
 
-
-# Create Streamlit app
+import streamlit as st
 
 # CSS for sidebar
 st.markdown(
@@ -128,46 +127,60 @@ st.markdown(
     <style>
     .sidebar .sidebar-content {
         background-color: #f8f9fa;
+        padding: 10px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Set the sidebar width
+# Set the sidebar width and style
 st.markdown(
     """
     <style>
     .sidebar .sidebar-content {
         width: 250px;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# Set page width
-st.markdown(
-    """
-    <style>
-    .reportview-container .main .block-container {
-        max-width: 1200px;
-        padding-top: 50px;
+    .sidebar .sidebar-content .block-container {
+        padding: 20px;
+    }
+    .sidebar .sidebar-content .block-container hr {
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-page = st.sidebar.radio(
-    "Spark Your Imagination !",
-    ("Book Recommender (Collaborative)", "Content-based Recommender")
+# Set page width and padding
+st.markdown(
+    """
+    <style>
+    .reportview-container .main .block-container {
+        max-width: 1200px;
+        padding-top: 20px;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
-if page == "Book Recommender (Collaborative)":
-    st.title('Spark Your Imagination')
-    getTop5Books()
+# Sidebar with navigation options
+page = st.sidebar.radio(
+    "Navigation",
+    ("Home", "Book Recommender (Collaborative)", "Content-based Recommender")
+)
 
+# Main content based on selected page
+if page == "Home":
+    st.title('Spark Your Imagination!')
+    st.write("Choose an option from the sidebar to get started.")
+elif page == "Book Recommender (Collaborative)":
+    st.title('Collaborative Filtering Recommender')
+    getTop5Books()  # Function for displaying collaborative recommendations
 elif page == "Content-based Recommender":
     st.title("Content-based Recommender")
-    getClosestBook()
+    getClosestBook()  # Function for content-based recommendations
