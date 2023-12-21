@@ -39,14 +39,15 @@ user_ids = books_df['original_user_id'].unique().tolist()
 # Create Streamlit app
 st.title('Books for User ID')
 
-def get_image(image_url):
+def get_image(image_url, image_width=200):
     try:
         response = requests.get(image_url)
         img = Image.open(BytesIO(response.content))
+        img.thumbnail((image_width, image_width))
         buffered = BytesIO()
         img.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
-        return f'<img src="data:image/jpeg;base64,{img_str}" alt="book_image">'
+        return f'{img_str}'
     except Exception as e:
         st.error(f"Error fetching image: {e}")
         return None
@@ -57,18 +58,20 @@ def get_image(image_url):
 selected_user_id = st.selectbox("Select a User ID", user_ids) 
 
 if st.button("Get Books"):
-    filtered_books = books_df[books_df['original_user_id'] == selected_user_id][['book_id', 'book_name', 'image_url']]
-    books_with_images = filtered_books.copy()
-    if not filtered_books.empty:
+    st.write(f"Books for User ID {selected_user_id}:")
+    books_with_images = books_df[books_df['original_user_id'] == selected_user_id][['book_id', 'book_name', 'image_url']]
+    if not books_with_images.empty:
         st.write(f"Books for User ID {selected_user_id}:")
-        books_with_images = books_df[books_df['original_user_id'] == selected_user_id].copy()
-
-        # Remove index and display book name and image in a column
-        books_with_images['image'] = books_with_images['image_url'].apply(lambda x: get_image(x))
-        books_with_images = books_with_images[['book_name', 'image']]
         
+        # Display books' images in a horizontal grid
+        image_width = 200  # Set the width of each image
+        images_html = ""
         for index, row in books_with_images.iterrows():
-            st.markdown(f"**{row['book_name']}**")
-            st.markdown(row['image'], unsafe_allow_html=True)
+            image_html = get_image(row['image_url'], image_width)
+            if image_html:
+                images_html += f'<img src="data:image/jpeg;base64,{image_html}" style="width:{image_width}px; margin: 0 10px">'
+
+        # Display images in a horizontal grid
+        st.markdown(images_html, unsafe_allow_html=True)
     else:
         st.write(f"No books found for User ID {selected_user_id}.")
