@@ -183,8 +183,26 @@ page = st.sidebar.radio(
 
 # Main content based on selected page
 if page == "Home":
-    st.title('Spark Your Imagination!')
-    st.write("Choose an option from the sidebar to get started.")
+    local_image_path = 'logo.png'
+
+    # Read the image file as bytes
+    with open(local_image_path, 'rb') as f:
+        image_bytes = f.read()
+
+    # Encode the image as base64
+    encoded_image = base64.b64encode(image_bytes).decode()
+
+    # Center the image and text using HTML/CSS
+    centered_content_html = f"""
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <img src="data:image/png;base64,{encoded_image}" style="width: 400px; height: 400px;">
+            <h5 style="margin-top: 20px;">Choose an option from the sidebar to get started.</h5>
+        </div>
+    """
+
+    # Display the centered content using Markdown
+    st.markdown(centered_content_html, unsafe_allow_html=True)
+
 elif page == "Book Recommender (Collaborative)":
     st.title('Collaborative Filtering Recommender')
     getTop5Books()  # Function for displaying collaborative recommendations
