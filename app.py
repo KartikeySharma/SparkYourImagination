@@ -39,28 +39,20 @@ user_ids = books_df['original_user_id'].unique().tolist()
 # Create Streamlit app
 st.title('Books for User ID')
 
-# def get_image(image_url):
-#     try:
-#         response = requests.get(image_url)
-#         img = Image.open(BytesIO(response.content))
-#         buffered = BytesIO()
-#         img.save(buffered, format="JPEG")
-#         img_str = base64.b64encode(buffered.getvalue()).decode()
-#         return f'<img src="data:image/jpeg;base64,{img_str}" alt="book_image">'
-#     except Exception as e:
-#         st.error(f"Error fetching image: {e}")
-#         return None
-
-def get_resized_image(image_url, target_size):
+def get_image(image_url):
     try:
         response = requests.get(image_url)
         img = Image.open(BytesIO(response.content))
-        img.thumbnail(target_size, Image.ANTIALIAS)
-        return img
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        return f'<img src="data:image/jpeg;base64,{img_str}" alt="book_image">'
     except Exception as e:
         st.error(f"Error fetching image: {e}")
         return None
-    
+
+# Create a copy of the DataFrame to store the images
+
 # Display dropdown for selecting user ID
 selected_user_id = st.selectbox("Select a User ID", user_ids) 
 
@@ -69,12 +61,14 @@ if st.button("Get Books"):
     books_with_images = filtered_books.copy()
     if not filtered_books.empty:
         st.write(f"Books for User ID {selected_user_id}:")
-        target_image_size = (200, 200)  # Adjust width and height here
-        books_with_images['image'] = books_with_images['image_url'].apply(lambda x: get_resized_image(x, target_image_size))
-        books_with_images = books_with_images[['book_name', 'image']]
+        books_with_images = books_df[books_df['original_user_id'] == selected_user_id].copy()
 
+        # Remove index and display book name and image in a column
+        books_with_images['image'] = books_with_images['image_url'].apply(lambda x: get_image(x))
+        books_with_images = books_with_images[['book_name', 'image']]
+        
         for index, row in books_with_images.iterrows():
-            if row['image'] is not None:
-                st.image(row['image'], caption=row['book_name'], use_column_width=True)
+            st.markdown(f"**{row['book_name']}**")
+            st.markdown(row['image'], unsafe_allow_html=True)
     else:
         st.write(f"No books found for User ID {selected_user_id}.")
