@@ -98,9 +98,9 @@ def getClosestBook():
     selected_title = st.selectbox("Select a Title", df['title_A'].unique())
 
     # Display details of the selected book
-    book_details = df[df['title_A'] == selected_title]
+    min_dist_book = df[df['title_A'] == selected_title]
     # st.write(book_details)
-    min_dist_book = book_details[book_details['distCol'] == book_details['distCol'].min()]
+    # min_dist_book = book_details[book_details['distCol'] == book_details['distCol'].min()]
 
     if st.button("Get Books"):
         books_with_images = min_dist_book  # Assuming min_dist_book is the DataFrame with book data
